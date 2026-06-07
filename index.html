@@ -21,15 +21,30 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg); /* solid base — canvas sits above this */
+    }
 
     body {
-      background: var(--bg);
+      background: transparent; /* let #bg-canvas show through */
       color: var(--text);
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       line-height: 1.6;
       overflow-x: hidden;
     }
+
+    /* ─── FULL-PAGE PARTICLE CANVAS ─── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;          /* above html bg, below all document flow  */
+      pointer-events: none;
+      display: block;
+    }
+
+    /* Ensure all page content sits above the fixed canvas */
+    nav, section, footer, .resume-fab { position: relative; z-index: 1; }
 
     /* ─── SCROLLBAR ─── */
     ::-webkit-scrollbar { width: 4px; }
@@ -141,8 +156,8 @@
       inset: 0;
       background: radial-gradient(
         ellipse 80% 70% at 50% 50%,
-        rgba(10, 10, 10, 0.38) 0%,
-        rgba(10, 10, 10, 0.70) 100%
+        rgba(10, 10, 10, 0.25) 0%,
+        rgba(10, 10, 10, 0.60) 100%
       );
       pointer-events: none;
     }
@@ -286,8 +301,9 @@
     .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
 
     /* ─── STAT STRIP ─── */
-    #stats {
-      background: var(--surface);
+    /* stats section */
+    #stats { /* light section */
+      background: rgba(20, 20, 20, 0.90);
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
       padding: 2.5rem 2rem;
@@ -319,7 +335,10 @@
     }
 
     /* ─── SECTION COMMON ─── */
-    section { padding: 6rem 2rem; }
+    section {
+      padding: 6rem 2rem;
+      background: rgba(12, 12, 12, 0.80); /* dark sections — particle net shows through */
+    }
 
     .section-inner { max-width: 920px; margin: 0 auto; }
 
@@ -356,7 +375,7 @@
     }
 
     /* ─── ABOUT ─── */
-    #about { background: var(--surface); }
+    #about { background: rgba(20, 20, 20, 0.86); }
 
     .about-grid {
       display: grid;
@@ -566,7 +585,7 @@
     .job-bullets li strong { color: var(--text); }
 
     /* ─── SKILLS ─── */
-    #skills { background: var(--surface); }
+    #skills { background: rgba(20, 20, 20, 0.86); }
 
     .skills-grid {
       display: grid;
@@ -655,7 +674,7 @@
     .ei-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.1rem; }
 
     /* ─── COMMUNITY ─── */
-    #community { background: var(--surface); }
+    #community { background: rgba(20, 20, 20, 0.86); }
 
     .community-card {
       background: var(--bg);
@@ -710,7 +729,7 @@
     /* ─── VISION ─── */
     #vision {
       text-align: center;
-      background: var(--surface);
+      background: rgba(20, 20, 20, 0.90);
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
     }
@@ -738,7 +757,7 @@
     .vision-quote::after { bottom: -0.5rem; right: 0; content: '"'; }
 
     /* ─── CONTACT ─── */
-    #contact { background: var(--surface); }
+    #contact { background: rgba(20, 20, 20, 0.86); }
 
     .contact-grid {
       display: grid;
@@ -843,6 +862,9 @@
   </style>
 </head>
 <body>
+
+<!-- FULL-PAGE PARTICLE NETWORK -->
+<canvas id="bg-canvas"></canvas>
 
 <!-- NAV -->
 <nav>
@@ -1379,6 +1401,108 @@
   const statsSection = document.getElementById('stats');
   if (statsSection) statsObserver.observe(statsSection);
 
+  // ── Full-page particle network ───────────────────────────────────────────
+  (function initParticles() {
+    const cvs = document.getElementById('bg-canvas');
+    if (!cvs) return;
+    const ctx = cvs.getContext('2d');
+
+    const CFG = {
+      count:    90,     // number of nodes
+      linkDist: 155,    // max px distance to draw a connecting line
+      speed:    0.28,   // base drift speed
+      dotMax:   1.8,    // max dot radius
+      dotMin:   0.7,
+      mouseR:   220,    // radius of mouse influence
+    };
+
+    let W, H, nodes = [];
+    const mouse = { x: -9999, y: -9999 };
+
+    function resize() {
+      W = cvs.width  = window.innerWidth;
+      H = cvs.height = window.innerHeight;
+    }
+
+    function makeNode() {
+      return {
+        x:  Math.random() * W,
+        y:  Math.random() * H,
+        vx: (Math.random() - 0.5) * CFG.speed,
+        vy: (Math.random() - 0.5) * CFG.speed,
+        r:  Math.random() * (CFG.dotMax - CFG.dotMin) + CFG.dotMin,
+        op: Math.random() * 0.35 + 0.18,  // base opacity 0.18–0.53
+      };
+    }
+
+    function init() {
+      resize();
+      nodes = Array.from({ length: CFG.count }, makeNode);
+    }
+
+    function tick() {
+      ctx.clearRect(0, 0, W, H);
+
+      // ── update positions ──
+      nodes.forEach(n => {
+        // gentle mouse gravity
+        const dx = mouse.x - n.x, dy = mouse.y - n.y;
+        const md = Math.sqrt(dx * dx + dy * dy);
+        if (md < CFG.mouseR && md > 1) {
+          const force = (1 - md / CFG.mouseR) * 0.018;
+          n.vx += (dx / md) * force;
+          n.vy += (dy / md) * force;
+        }
+        // speed cap
+        const spd = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
+        if (spd > 0.7) { n.vx *= 0.7 / spd; n.vy *= 0.7 / spd; }
+        n.x += n.vx;
+        n.y += n.vy;
+        // wrap around edges
+        if (n.x < -10) n.x = W + 10;
+        if (n.x > W + 10) n.x = -10;
+        if (n.y < -10) n.y = H + 10;
+        if (n.y > H + 10) n.y = -10;
+      });
+
+      // ── draw connecting lines ──
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const d  = Math.sqrt(dx * dx + dy * dy);
+          if (d < CFG.linkDist) {
+            const alpha = (1 - d / CFG.linkDist) * 0.22;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `rgba(220,220,220,${alpha})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // ── draw nodes ──
+      nodes.forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(235,235,235,${n.op})`;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(tick);
+    }
+
+    window.addEventListener('resize', resize, { passive: true });
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+    window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+
+    init();
+    tick();
+  })();
+  // ────────────────────────────────────────────────────────────────────────
+
   // ── Tubes 3D hero background (monochrome B&W palette)
   (async () => {
     const canvas  = document.getElementById('hero-canvas');
@@ -1390,17 +1514,17 @@
 
     // Monochrome palettes — whites, silvers, deep greys
     const TUBE_PALETTES = [
-      ['#ffffff', '#d0d0d0', '#707070'],   // bright white → mid grey
-      ['#ffffff', '#ffffff', '#a0a0a0'],   // double white + grey
-      ['#efefef', '#c0c0c0', '#505050'],   // off-white → dark
-      ['#ffffff', '#e0e0e0', '#888888'],   // clean white scale
-      ['#f5f5f5', '#b0b0b0', '#404040'],   // light-to-dark sweep
+      ['#ffffff', '#ffffff', '#c8c8c8'],   // pure white dominant
+      ['#ffffff', '#e8e8e8', '#888888'],   // white → silver
+      ['#ffffff', '#d0d0d0', '#606060'],   // high contrast sweep
+      ['#f8f8f8', '#cccccc', '#484848'],   // off-white to dark
+      ['#ffffff', '#ffffff', '#a0a0a0'],   // double white punch
     ];
     const LIGHT_PALETTES = [
-      ['#ffffff', '#e8e8e8', '#c0c0c0', '#606060'],
-      ['#ffffff', '#ffffff', '#a8a8a8', '#484848'],
-      ['#f0f0f0', '#d0d0d0', '#888888', '#303030'],
-      ['#ffffff', '#cccccc', '#808080', '#282828'],
+      ['#ffffff', '#ffffff', '#e0e0e0', '#888888'],  // bright whites
+      ['#ffffff', '#eeeeee', '#c0c0c0', '#606060'],
+      ['#ffffff', '#ffffff', '#b0b0b0', '#404040'],
+      ['#f5f5f5', '#dddddd', '#a0a0a0', '#303030'],
     ];
     const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
@@ -1412,7 +1536,7 @@
       tubesApp = mod.default(canvas, {
         tubes: {
           colors: TUBE_PALETTES[0],
-          lights: { intensity: 250, colors: LIGHT_PALETTES[0] }
+          lights: { intensity: 320, colors: LIGHT_PALETTES[0] }
         }
       });
 
