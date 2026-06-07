@@ -96,96 +96,30 @@
       padding: 100px 2rem 4rem;
       position: relative;
       overflow: hidden;
-      cursor: crosshair;
     }
 
-    /* Fallback static background shown until WebGL loads */
     .hero-bg {
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 60% 50% at 70% 40%, rgba(108, 99, 255, 0.18) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 40% at 20% 70%, rgba(0, 212, 170, 0.1) 0%, transparent 60%);
-      transition: opacity 0.8s ease;
+        radial-gradient(ellipse 60% 50% at 70% 40%, rgba(108, 99, 255, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 20% 70%, rgba(0, 212, 170, 0.08) 0%, transparent 60%);
     }
-    .hero-bg.tubes-ready { opacity: 0; pointer-events: none; }
 
-    /* Tubes canvas fills the hero */
-    #hero-canvas {
+    .hero-grid {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      touch-action: none;
-      opacity: 0;
-      transition: opacity 1.2s ease;
-    }
-    #hero-canvas.tubes-ready { opacity: 1; }
-
-    /* Dark scrim keeps text legible over bright neon tubes */
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(
-        ellipse 75% 65% at 50% 50%,
-        rgba(8, 11, 20, 0.42) 0%,
-        rgba(8, 11, 20, 0.72) 100%
-      );
-      pointer-events: none;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 50px 50px;
+      opacity: 0.3;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
     }
 
     .hero-content {
       position: relative;
-      z-index: 10;
       max-width: 760px;
       text-align: center;
-    }
-
-    /* Stronger shadows so text pops against neon */
-    .hero-content h1,
-    .hero-content .hero-subtitle,
-    .hero-content .hero-vision {
-      text-shadow: 0 0 32px rgba(8, 11, 20, 0.9), 0 2px 8px rgba(8, 11, 20, 0.8);
-    }
-
-    /* Click-to-randomize hint at bottom of hero */
-    .hero-hint {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
-      color: rgba(232, 234, 240, 0.45);
-      pointer-events: none;
-      animation: hintPulse 3s ease-in-out infinite;
-      opacity: 0;
-      transition: opacity 1s ease 1.5s;
-    }
-    .hero-hint.tubes-ready { opacity: 1; }
-
-    .hero-hint svg {
-      width: 20px; height: 20px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .hero-hint span {
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    @keyframes hintPulse {
-      0%, 100% { opacity: 0.45; transform: translateX(-50%) translateY(0); }
-      50%       { opacity: 0.25; transform: translateX(-50%) translateY(4px); }
     }
 
     .hero-tag {
@@ -822,13 +756,8 @@
 
 <!-- HERO -->
 <section id="hero">
-  <!-- Fallback gradient (fades out once WebGL is ready) -->
-  <div class="hero-bg" id="hero-bg-fallback"></div>
-  <!-- Three.js tubes canvas -->
-  <canvas id="hero-canvas"></canvas>
-  <!-- Dark scrim for text legibility -->
-  <div class="hero-overlay"></div>
-
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
   <div class="hero-content">
     <div class="hero-tag">Product Manager · Wallets & Digital Assets</div>
     <h1>Hi, I'm <span class="name-gradient">Arjun Menon</span></h1>
@@ -838,12 +767,6 @@
       <a href="#experience" class="btn btn-primary">View Experience</a>
       <a href="#contact" class="btn btn-ghost">Get in Touch</a>
     </div>
-  </div>
-
-  <!-- Hint shown once tubes are active -->
-  <div class="hero-hint" id="hero-hint">
-    <svg viewBox="0 0 24 24"><path d="M4 12h16M12 5l7 7-7 7"/></svg>
-    <span>Click to randomize colors</span>
   </div>
 </section>
 
@@ -1352,68 +1275,6 @@
     });
   }, { passive: true });
 
-  // ── Tubes 3D background ──────────────────────────────────────────────────
-  (async () => {
-    const canvas   = document.getElementById('hero-canvas');
-    const fallback = document.getElementById('hero-bg-fallback');
-    const hint     = document.getElementById('hero-hint');
-    const hero     = document.getElementById('hero');
-    if (!canvas) return;
-
-    // Brand palette seed — randomize from these on click
-    const BRAND_TUBE_PALETTES = [
-      ["#6c63ff", "#00d4aa", "#f0a500"],
-      ["#8b5cf6", "#06d6a0", "#ff6b6b"],
-      ["#f967fb", "#53bc28", "#6958d5"],
-      ["#00d4aa", "#6c63ff", "#ff008a"],
-      ["#a855f7", "#22d3ee", "#f59e0b"],
-    ];
-    const BRAND_LIGHT_PALETTES = [
-      ["#6c63ff", "#00d4aa", "#ff008a", "#60aed5"],
-      ["#83f36e", "#fe8a2e", "#ff008a", "#60aed5"],
-      ["#a855f7", "#22d3ee", "#f0a500", "#ff6b6b"],
-      ["#00d4aa", "#6c63ff", "#f967fb", "#83f36e"],
-    ];
-
-    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-
-    let tubesApp = null;
-
-    try {
-      const mod = await import(
-        'https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js'
-      );
-      const TubesCursor = mod.default;
-
-      tubesApp = TubesCursor(canvas, {
-        tubes: {
-          colors: BRAND_TUBE_PALETTES[0],
-          lights: {
-            intensity: 200,
-            colors: BRAND_LIGHT_PALETTES[0]
-          }
-        }
-      });
-
-      // Fade in canvas, fade out static fallback
-      canvas.classList.add('tubes-ready');
-      fallback.classList.add('tubes-ready');
-      hint.classList.add('tubes-ready');
-
-    } catch (err) {
-      console.warn('Tubes background unavailable — using static fallback.', err);
-    }
-
-    // Click to randomize (works even without tubes — just a noop)
-    hero.addEventListener('click', e => {
-      // Don't hijack button/link clicks
-      if (e.target.closest('a, button')) return;
-      if (!tubesApp) return;
-      tubesApp.tubes.setColors(pick(BRAND_TUBE_PALETTES));
-      tubesApp.tubes.setLightsColors(pick(BRAND_LIGHT_PALETTES));
-    });
-  })();
-  // ────────────────────────────────────────────────────────────────────────
 </script>
 </body>
 </html>
