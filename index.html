@@ -6,17 +6,17 @@
   <title>Arjun Menon — Product Manager, Wallets & Digital Assets</title>
   <style>
     :root {
-      --bg: #0a0a0a;
-      --surface: #111111;
-      --surface2: #1c1c1c;
-      --border: #2d2d2d;
-      --accent: #ffffff;
-      --accent2: #aaaaaa;
-      --accent3: #666666;
-      --text: #f0f0f0;
-      --muted: #777777;
-      --gradient: linear-gradient(135deg, #ffffff 0%, #888888 100%);
-      --glow: 0 0 40px rgba(255, 255, 255, 0.08);
+      --bg:       #0c0c0c;
+      --surface:  #141414;
+      --surface2: #1e1e1e;
+      --border:   #303030;
+      --accent:   #efefef;   /* off-white — used for primary text accents */
+      --accent2:  #808080;   /* silver — secondary, lower-weight elements   */
+      --accent3:  #444444;   /* dark grey — tertiary / decorative           */
+      --text:     #e2e2e2;
+      --muted:    #686868;
+      --gradient: linear-gradient(135deg, #efefef 0%, #909090 100%);
+      --glow:     0 0 32px rgba(239, 239, 239, 0.07);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -78,14 +78,14 @@
     .nav-links a:hover { color: var(--accent2); }
 
     .nav-cta {
-      background: var(--gradient);
-      color: #fff !important;
+      background: var(--accent);
+      color: #0c0c0c !important;
       padding: 0.45rem 1.1rem;
       border-radius: 6px;
-      font-weight: 600;
-      transition: opacity 0.2s !important;
+      font-weight: 700;
+      transition: background 0.2s, transform 0.2s !important;
     }
-    .nav-cta:hover { opacity: 0.85; }
+    .nav-cta:hover { background: #ffffff; transform: translateY(-1px); }
 
     /* ─── HERO ─── */
     #hero {
@@ -233,10 +233,7 @@
     }
 
     .name-gradient {
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #ffffff;
     }
 
     .hero-subtitle {
@@ -274,11 +271,12 @@
     }
 
     .btn-primary {
-      background: var(--gradient);
-      color: #fff;
+      background: var(--accent);
+      color: #0c0c0c;
       border: none;
+      font-weight: 700;
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255, 255, 255, 0.22); }
+    .btn-primary:hover { background: #ffffff; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(239, 239, 239, 0.18); }
 
     .btn-ghost {
       background: transparent;
@@ -308,11 +306,9 @@
     .stat-num {
       font-size: 2.2rem;
       font-weight: 800;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #ffffff;
       line-height: 1.1;
+      letter-spacing: -0.02em;
     }
     .stat-label {
       font-size: 0.82rem;
@@ -331,18 +327,18 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: var(--accent2);   /* silver — clearly subordinate to the white h2 */
       margin-bottom: 0.7rem;
     }
     .section-label::before {
       content: '';
       display: block;
       width: 20px; height: 2px;
-      background: var(--gradient);
+      background: var(--accent2);
       border-radius: 2px;
     }
 
@@ -385,9 +381,10 @@
       margin-top: 1.2rem;
     }
 
+    /* Tier-1 tag — white border, off-white text */
     .tag {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(239, 239, 239, 0.06);
+      border: 1px solid rgba(239, 239, 239, 0.22);
       color: var(--accent);
       padding: 0.3rem 0.8rem;
       border-radius: 100px;
@@ -397,18 +394,19 @@
       cursor: default;
     }
     .tag:hover {
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(239, 239, 239, 0.12);
       border-color: var(--accent);
       transform: translateY(-1px);
     }
 
+    /* Tier-2 tag — grey border, silver text — clearly secondary */
     .tag-green {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.14);
+      background: transparent;
+      border-color: rgba(128, 128, 128, 0.35);
       color: var(--accent2);
     }
     .tag-green:hover {
-      background: rgba(255, 255, 255, 0.09);
+      background: rgba(128, 128, 128, 0.1);
       border-color: var(--accent2);
     }
 
@@ -439,9 +437,9 @@
       flex-shrink: 0;
     }
 
-    .hi-icon-purple { background: rgba(255, 255, 255, 0.09); }
-    .hi-icon-green { background: rgba(255, 255, 255, 0.07); }
-    .hi-icon-gold { background: rgba(255, 255, 255, 0.07); }
+    .hi-icon-purple { background: rgba(239, 239, 239, 0.14); border: 1px solid rgba(239,239,239,0.18); }
+    .hi-icon-green  { background: rgba(239, 239, 239, 0.07); border: 1px solid rgba(239,239,239,0.10); }
+    .hi-icon-gold   { background: transparent;               border: 1px solid rgba(239,239,239,0.12); }
 
     .hi-text strong {
       display: block;
@@ -513,11 +511,9 @@
     .job-company {
       font-size: 0.85rem;
       font-weight: 600;
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--accent2);
       margin-top: 0.15rem;
+      letter-spacing: 0.01em;
     }
     .job-date {
       font-size: 0.78rem;
@@ -597,11 +593,11 @@
     }
 
     .skill-card h3 {
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--accent);
+      letter-spacing: 0.1em;
+      color: var(--accent2);
       margin-bottom: 0.8rem;
     }
 
@@ -714,9 +710,9 @@
     /* ─── VISION ─── */
     #vision {
       text-align: center;
-      background:
-        radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
-        var(--bg);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
     .vision-quote {
@@ -732,9 +728,9 @@
 
     .vision-quote::before, .vision-quote::after {
       content: '"';
-      font-size: 4rem;
-      color: var(--accent);
-      opacity: 0.3;
+      font-size: 5rem;
+      color: var(--accent3);
+      opacity: 0.8;
       position: absolute;
       line-height: 1;
     }
@@ -781,10 +777,7 @@
     }
 
     footer span {
-      background: var(--gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--accent);
       font-weight: 600;
     }
 
@@ -1348,19 +1341,19 @@
     const hero    = document.getElementById('hero');
     if (!canvas) return;
 
-    // All palettes are strictly black / white / grey
+    // Monochrome palettes — whites, silvers, deep greys
     const TUBE_PALETTES = [
-      ['#ffffff', '#cccccc', '#888888'],
-      ['#ffffff', '#aaaaaa', '#555555'],
-      ['#f0f0f0', '#999999', '#444444'],
-      ['#ffffff', '#dddddd', '#777777'],
-      ['#eeeeee', '#bbbbbb', '#666666'],
+      ['#ffffff', '#d0d0d0', '#707070'],   // bright white → mid grey
+      ['#ffffff', '#ffffff', '#a0a0a0'],   // double white + grey
+      ['#efefef', '#c0c0c0', '#505050'],   // off-white → dark
+      ['#ffffff', '#e0e0e0', '#888888'],   // clean white scale
+      ['#f5f5f5', '#b0b0b0', '#404040'],   // light-to-dark sweep
     ];
     const LIGHT_PALETTES = [
-      ['#ffffff', '#dddddd', '#aaaaaa', '#666666'],
-      ['#ffffff', '#cccccc', '#888888', '#444444'],
-      ['#f0f0f0', '#bbbbbb', '#777777', '#333333'],
-      ['#ffffff', '#eeeeee', '#999999', '#555555'],
+      ['#ffffff', '#e8e8e8', '#c0c0c0', '#606060'],
+      ['#ffffff', '#ffffff', '#a8a8a8', '#484848'],
+      ['#f0f0f0', '#d0d0d0', '#888888', '#303030'],
+      ['#ffffff', '#cccccc', '#808080', '#282828'],
     ];
     const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
@@ -1372,7 +1365,7 @@
       tubesApp = mod.default(canvas, {
         tubes: {
           colors: TUBE_PALETTES[0],
-          lights: { intensity: 180, colors: LIGHT_PALETTES[0] }
+          lights: { intensity: 250, colors: LIGHT_PALETTES[0] }
         }
       });
 
