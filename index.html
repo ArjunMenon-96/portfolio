@@ -38,13 +38,13 @@
     #bg-canvas {
       position: fixed;
       inset: 0;
-      z-index: 0;          /* above html bg, below all document flow  */
+      z-index: 1;          /* above etheral shadow, below page content */
       pointer-events: none;
       display: block;
     }
 
     /* Ensure all page content sits above the fixed canvas */
-    nav, section, footer, .resume-fab { position: relative; z-index: 1; }
+    nav, section, footer, .resume-fab { position: relative; z-index: 2; }
 
     /* ─── SCROLLBAR ─── */
     ::-webkit-scrollbar { width: 4px; }
@@ -56,9 +56,9 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 100;
-      background: rgba(10, 10, 10, 0.85);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
+      background: transparent;
+      backdrop-filter: blur(0px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
       padding: 0 2rem;
       height: 60px;
       display: flex;
@@ -113,11 +113,13 @@
       overflow: hidden;
     }
 
-    /* ── Etheral Shadow layer ── */
+    /* ── Etheral Shadow — fixed full-page base layer ── */
     #etheral-container {
-      position: absolute;
+      position: fixed;
       inset: 0;
       overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
     }
     /* Inner div is expanded by displacementScale on all sides so the
        displaced pixels have room to move without clipping */
@@ -306,9 +308,9 @@
     /* ─── STAT STRIP ─── */
     /* stats section */
     #stats { /* light section */
-      background: rgba(20, 20, 20, 0.90);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      background: rgba(10, 10, 10, 0.55);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
       padding: 2.5rem 2rem;
     }
 
@@ -340,7 +342,7 @@
     /* ─── SECTION COMMON ─── */
     section {
       padding: 6rem 2rem;
-      background: rgba(12, 12, 12, 0.80); /* dark sections — particle net shows through */
+      background: rgba(10, 10, 10, 0.50); /* semi-transparent — etheral shadow shows through */
     }
 
     .section-inner { max-width: 920px; margin: 0 auto; }
@@ -378,7 +380,7 @@
     }
 
     /* ─── ABOUT ─── */
-    #about { background: rgba(20, 20, 20, 0.86); }
+    #about { background: rgba(14, 14, 14, 0.55); }
 
     .about-grid {
       display: grid;
@@ -433,7 +435,7 @@
     }
 
     .highlights-card {
-      background: var(--bg);
+      background: rgba(10,10,10,0.70);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.8rem;
@@ -509,7 +511,7 @@
     }
 
     .job-header {
-      background: var(--surface);
+      background: rgba(14,14,14,0.72);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.4rem 1.6rem;
@@ -588,7 +590,7 @@
     .job-bullets li strong { color: var(--text); }
 
     /* ─── SKILLS ─── */
-    #skills { background: rgba(20, 20, 20, 0.86); }
+    #skills { background: rgba(14, 14, 14, 0.55); }
 
     .skills-grid {
       display: grid;
@@ -597,7 +599,7 @@
     }
 
     .skill-card {
-      background: var(--bg);
+      background: rgba(10,10,10,0.68);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;
@@ -651,7 +653,7 @@
     .card-list { display: flex; flex-direction: column; gap: 1rem; }
 
     .edu-item, .cert-item {
-      background: var(--surface);
+      background: rgba(14,14,14,0.70);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 1.2rem 1.4rem;
@@ -677,10 +679,10 @@
     .ei-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.1rem; }
 
     /* ─── COMMUNITY ─── */
-    #community { background: rgba(20, 20, 20, 0.86); }
+    #community { background: rgba(14, 14, 14, 0.55); }
 
     .community-card {
-      background: var(--bg);
+      background: rgba(10,10,10,0.68);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 2rem 2.4rem;
@@ -706,7 +708,7 @@
     }
 
     .lang-item {
-      background: var(--bg);
+      background: rgba(10,10,10,0.65);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 1rem;
@@ -732,9 +734,9 @@
     /* ─── VISION ─── */
     #vision {
       text-align: center;
-      background: rgba(20, 20, 20, 0.90);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      background: rgba(10, 10, 10, 0.55);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
     }
 
     .vision-quote {
@@ -760,7 +762,7 @@
     .vision-quote::after { bottom: -0.5rem; right: 0; content: '"'; }
 
     /* ─── CONTACT ─── */
-    #contact { background: rgba(20, 20, 20, 0.86); }
+    #contact { background: rgba(14, 14, 14, 0.55); }
 
     .contact-grid {
       display: grid;
@@ -769,7 +771,7 @@
     }
 
     .contact-card {
-      background: var(--bg);
+      background: rgba(10,10,10,0.68);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 1.3rem 1.5rem;
@@ -793,7 +795,8 @@
     footer {
       text-align: center;
       padding: 2rem;
-      border-top: 1px solid var(--border);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      background: rgba(10,10,10,0.55);
       color: var(--muted);
       font-size: 0.82rem;
     }
@@ -866,7 +869,26 @@
 </head>
 <body>
 
-<!-- FULL-PAGE PARTICLE NETWORK -->
+<!-- ETHERAL SHADOW — fixed base layer, sits behind everything -->
+<div id="etheral-container">
+  <div id="etheral-inner">
+    <svg style="position:absolute;width:0;height:0;overflow:hidden;">
+      <defs>
+        <filter id="etheral-filter">
+          <feTurbulence result="undulation" numOctaves="2" baseFrequency="0.0005,0.002" seed="0" type="turbulence"/>
+          <feColorMatrix id="etheral-hue" in="undulation" type="hueRotate" values="180"/>
+          <feColorMatrix in="dist" result="circulation" type="matrix" values="4 0 0 0 1  4 0 0 0 1  4 0 0 0 1  1 0 0 0 0"/>
+          <feDisplacementMap in="SourceGraphic" in2="circulation" scale="100" result="dist"/>
+          <feDisplacementMap in="dist" in2="undulation" scale="100" result="output"/>
+        </filter>
+      </defs>
+    </svg>
+    <div id="etheral-blob"></div>
+  </div>
+  <div id="etheral-noise"></div>
+</div>
+
+<!-- PARTICLE NETWORK — fixed layer above etheral shadow -->
 <canvas id="bg-canvas"></canvas>
 
 <!-- NAV -->
@@ -885,55 +907,7 @@
 <!-- HERO -->
 <section id="hero">
 
-  <!-- ── Etheral Shadow background ── -->
-  <div id="etheral-container">
-    <div id="etheral-inner">
-      <!-- SVG filter: turbulence → animated hue-rotate → displacement maps -->
-      <svg style="position:absolute;width:0;height:0;overflow:hidden;">
-        <defs>
-          <filter id="etheral-filter">
-            <feTurbulence
-              result="undulation"
-              numOctaves="2"
-              baseFrequency="0.0005,0.002"
-              seed="0"
-              type="turbulence"
-            />
-            <feColorMatrix
-              id="etheral-hue"
-              in="undulation"
-              type="hueRotate"
-              values="180"
-            />
-            <feColorMatrix
-              in="dist"
-              result="circulation"
-              type="matrix"
-              values="4 0 0 0 1  4 0 0 0 1  4 0 0 0 1  1 0 0 0 0"
-            />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="circulation"
-              scale="100"
-              result="dist"
-            />
-            <feDisplacementMap
-              in="dist"
-              in2="undulation"
-              scale="100"
-              result="output"
-            />
-          </filter>
-        </defs>
-      </svg>
-      <!-- Colour blob masked by organic shape -->
-      <div id="etheral-blob"></div>
-    </div>
-    <!-- Film-grain noise overlay -->
-    <div id="etheral-noise"></div>
-  </div>
-
-  <!-- Dark vignette for text legibility -->
+  <!-- Vignette scrim — darkens edges so text stays legible over the etheral bg -->
   <div class="hero-overlay"></div>
 
   <div class="hero-content">
