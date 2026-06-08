@@ -33,17 +33,7 @@
       line-height: 1.6;
       overflow-x: hidden;
     }
-
-    /* ─── FULL-PAGE PARTICLE CANVAS ─── */
-    #bg-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 1;          /* above etheral shadow, below page content */
-      pointer-events: none;
-      display: block;
-    }
-
-    /* Ensure all page content sits above the fixed canvas */
+/* Ensure all page content sits above the fixed canvas */
     nav, section, footer, .resume-fab { position: relative; z-index: 2; }
 
     /* ─── SCROLLBAR ─── */
@@ -888,9 +878,6 @@
   <div id="etheral-noise"></div>
 </div>
 
-<!-- PARTICLE NETWORK — fixed layer above etheral shadow -->
-<canvas id="bg-canvas"></canvas>
-
 <!-- NAV -->
 <nav>
   <div class="nav-logo">Arjun Menon</div>
@@ -1429,107 +1416,6 @@
   const statsSection = document.getElementById('stats');
   if (statsSection) statsObserver.observe(statsSection);
 
-  // ── Full-page particle network ───────────────────────────────────────────
-  (function initParticles() {
-    const cvs = document.getElementById('bg-canvas');
-    if (!cvs) return;
-    const ctx = cvs.getContext('2d');
-
-    const CFG = {
-      count:    90,     // number of nodes
-      linkDist: 155,    // max px distance to draw a connecting line
-      speed:    0.28,   // base drift speed
-      dotMax:   1.8,    // max dot radius
-      dotMin:   0.7,
-      mouseR:   220,    // radius of mouse influence
-    };
-
-    let W, H, nodes = [];
-    const mouse = { x: -9999, y: -9999 };
-
-    function resize() {
-      W = cvs.width  = window.innerWidth;
-      H = cvs.height = window.innerHeight;
-    }
-
-    function makeNode() {
-      return {
-        x:  Math.random() * W,
-        y:  Math.random() * H,
-        vx: (Math.random() - 0.5) * CFG.speed,
-        vy: (Math.random() - 0.5) * CFG.speed,
-        r:  Math.random() * (CFG.dotMax - CFG.dotMin) + CFG.dotMin,
-        op: Math.random() * 0.35 + 0.18,  // base opacity 0.18–0.53
-      };
-    }
-
-    function init() {
-      resize();
-      nodes = Array.from({ length: CFG.count }, makeNode);
-    }
-
-    function tick() {
-      ctx.clearRect(0, 0, W, H);
-
-      // ── update positions ──
-      nodes.forEach(n => {
-        // gentle mouse gravity
-        const dx = mouse.x - n.x, dy = mouse.y - n.y;
-        const md = Math.sqrt(dx * dx + dy * dy);
-        if (md < CFG.mouseR && md > 1) {
-          const force = (1 - md / CFG.mouseR) * 0.018;
-          n.vx += (dx / md) * force;
-          n.vy += (dy / md) * force;
-        }
-        // speed cap
-        const spd = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
-        if (spd > 0.7) { n.vx *= 0.7 / spd; n.vy *= 0.7 / spd; }
-        n.x += n.vx;
-        n.y += n.vy;
-        // wrap around edges
-        if (n.x < -10) n.x = W + 10;
-        if (n.x > W + 10) n.x = -10;
-        if (n.y < -10) n.y = H + 10;
-        if (n.y > H + 10) n.y = -10;
-      });
-
-      // ── draw connecting lines ──
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x;
-          const dy = nodes[i].y - nodes[j].y;
-          const d  = Math.sqrt(dx * dx + dy * dy);
-          if (d < CFG.linkDist) {
-            const alpha = (1 - d / CFG.linkDist) * 0.22;
-            ctx.beginPath();
-            ctx.moveTo(nodes[i].x, nodes[i].y);
-            ctx.lineTo(nodes[j].x, nodes[j].y);
-            ctx.strokeStyle = `rgba(220,220,220,${alpha})`;
-            ctx.lineWidth = 0.6;
-            ctx.stroke();
-          }
-        }
-      }
-
-      // ── draw nodes ──
-      nodes.forEach(n => {
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(235,235,235,${n.op})`;
-        ctx.fill();
-      });
-
-      requestAnimationFrame(tick);
-    }
-
-    window.addEventListener('resize', resize, { passive: true });
-    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
-    window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
-
-    init();
-    tick();
-  })();
-  // ────────────────────────────────────────────────────────────────────────
 
   // ── Etheral Shadow — hue-rotate animation (replaces framer-motion animate) ──
   (function initEtheralShadow() {
