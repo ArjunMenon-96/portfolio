@@ -111,53 +111,55 @@
       padding: 100px 2rem 4rem;
       position: relative;
       overflow: hidden;
-      cursor: crosshair;
     }
 
-    /* Static fallback — fades out once WebGL canvas is ready */
-    .hero-bg {
+    /* ── Etheral Shadow layer ── */
+    #etheral-container {
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(ellipse 60% 50% at 70% 40%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 40% at 20% 70%, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
-      transition: opacity 1s ease;
+      overflow: hidden;
     }
-    .hero-bg.tubes-ready { opacity: 0; pointer-events: none; }
-
-    .hero-grid {
+    /* Inner div is expanded by displacementScale on all sides so the
+       displaced pixels have room to move without clipping */
+    #etheral-inner {
       position: absolute;
-      inset: 0;
-      background-image: linear-gradient(var(--border) 1px, transparent 1px),
-                        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 50px 50px;
-      opacity: 0.3;
-      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
-      transition: opacity 1s ease;
+      inset: -100px;
+      filter: url(#etheral-filter) blur(5px);
     }
-    .hero-grid.tubes-ready { opacity: 0; pointer-events: none; }
-
-    /* Tubes canvas */
-    #hero-canvas {
-      position: absolute;
-      inset: 0;
+    /* The colour + blob mask */
+    #etheral-blob {
       width: 100%;
       height: 100%;
-      display: block;
-      touch-action: none;
-      opacity: 0;
-      transition: opacity 1.4s ease;
+      background-color: rgba(210, 210, 210, 1);
+      mask-image: url('https://framerusercontent.com/images/ceBGguIpUU8luwByxuQz79t7To.png');
+      -webkit-mask-image: url('https://framerusercontent.com/images/ceBGguIpUU8luwByxuQz79t7To.png');
+      mask-size: cover;
+      -webkit-mask-size: cover;
+      mask-repeat: no-repeat;
+      -webkit-mask-repeat: no-repeat;
+      mask-position: center;
+      -webkit-mask-position: center;
     }
-    #hero-canvas.tubes-ready { opacity: 1; }
+    /* Grain / noise texture overlay */
+    #etheral-noise {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://framerusercontent.com/images/g0QcWrxr87K0ufOxIUFBakwYA8.png');
+      background-size: 240px;
+      background-repeat: repeat;
+      opacity: 0.45;
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
 
-    /* Scrim keeps text readable over the bright tubes */
+    /* Dark vignette — keeps text sharp without fully hiding the effect */
     .hero-overlay {
       position: absolute;
       inset: 0;
       background: radial-gradient(
-        ellipse 80% 70% at 50% 50%,
-        rgba(10, 10, 10, 0.25) 0%,
-        rgba(10, 10, 10, 0.60) 100%
+        ellipse 90% 80% at 50% 50%,
+        rgba(10, 10, 10, 0.20) 0%,
+        rgba(10, 10, 10, 0.68) 100%
       );
       pointer-events: none;
     }
@@ -169,14 +171,13 @@
       text-align: center;
     }
 
-    /* Crisp text shadows so headings pop against the tubes */
     .hero-content h1,
     .hero-content .hero-subtitle,
     .hero-content .hero-vision {
-      text-shadow: 0 0 28px rgba(10, 10, 10, 0.95), 0 2px 6px rgba(10, 10, 10, 0.8);
+      text-shadow: 0 0 32px rgba(10, 10, 10, 0.9), 0 2px 8px rgba(10, 10, 10, 0.75);
     }
 
-    /* Click-to-randomize hint */
+    /* Scroll hint — fades in after 1.2 s */
     .hero-hint {
       position: absolute;
       bottom: 2rem;
@@ -187,26 +188,28 @@
       flex-direction: column;
       align-items: center;
       gap: 0.4rem;
-      color: rgba(240, 240, 240, 0.4);
+      color: rgba(230, 230, 230, 0.38);
       pointer-events: none;
-      opacity: 0;
-      transition: opacity 1.2s ease 1.8s;
+      animation: hintFadeIn 1s ease 1.4s both;
     }
-    .hero-hint.tubes-ready { opacity: 1; }
     .hero-hint svg {
       width: 18px; height: 18px;
       stroke: currentColor; fill: none;
       stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
-      animation: hintBounce 2.4s ease-in-out infinite;
+      animation: hintBounce 2.2s ease-in-out infinite;
     }
     .hero-hint span {
       font-size: 0.67rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
     }
+    @keyframes hintFadeIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
     @keyframes hintBounce {
       0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(4px); }
+      50%       { transform: translateY(5px); }
     }
 
     .hero-tag {
@@ -881,10 +884,58 @@
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-bg" id="hero-bg-fallback"></div>
-  <div class="hero-grid" id="hero-grid-fallback"></div>
-  <canvas id="hero-canvas"></canvas>
+
+  <!-- ── Etheral Shadow background ── -->
+  <div id="etheral-container">
+    <div id="etheral-inner">
+      <!-- SVG filter: turbulence → animated hue-rotate → displacement maps -->
+      <svg style="position:absolute;width:0;height:0;overflow:hidden;">
+        <defs>
+          <filter id="etheral-filter">
+            <feTurbulence
+              result="undulation"
+              numOctaves="2"
+              baseFrequency="0.0005,0.002"
+              seed="0"
+              type="turbulence"
+            />
+            <feColorMatrix
+              id="etheral-hue"
+              in="undulation"
+              type="hueRotate"
+              values="180"
+            />
+            <feColorMatrix
+              in="dist"
+              result="circulation"
+              type="matrix"
+              values="4 0 0 0 1  4 0 0 0 1  4 0 0 0 1  1 0 0 0 0"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="circulation"
+              scale="100"
+              result="dist"
+            />
+            <feDisplacementMap
+              in="dist"
+              in2="undulation"
+              scale="100"
+              result="output"
+            />
+          </filter>
+        </defs>
+      </svg>
+      <!-- Colour blob masked by organic shape -->
+      <div id="etheral-blob"></div>
+    </div>
+    <!-- Film-grain noise overlay -->
+    <div id="etheral-noise"></div>
+  </div>
+
+  <!-- Dark vignette for text legibility -->
   <div class="hero-overlay"></div>
+
   <div class="hero-content">
     <div class="hero-tag">Product Manager · Wallets & Digital Assets</div>
     <h1>Hi, I'm <span class="name-gradient">Arjun Menon</span></h1>
@@ -895,10 +946,13 @@
       <a href="#contact" class="btn btn-ghost">Get in Touch</a>
     </div>
   </div>
-  <div class="hero-hint" id="hero-hint">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
-    <span>Click to randomize</span>
+
+  <!-- Scroll indicator -->
+  <div class="hero-hint">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    <span>Scroll to explore</span>
   </div>
+
 </section>
 
 <!-- STATS -->
@@ -1503,58 +1557,25 @@
   })();
   // ────────────────────────────────────────────────────────────────────────
 
-  // ── Tubes 3D hero background (monochrome B&W palette)
-  (async () => {
-    const canvas  = document.getElementById('hero-canvas');
-    const bgFall  = document.getElementById('hero-bg-fallback');
-    const gridFall= document.getElementById('hero-grid-fallback');
-    const hint    = document.getElementById('hero-hint');
-    const hero    = document.getElementById('hero');
-    if (!canvas) return;
+  // ── Etheral Shadow — hue-rotate animation (replaces framer-motion animate) ──
+  (function initEtheralShadow() {
+    const hueMatrix = document.getElementById('etheral-hue');
+    if (!hueMatrix) return;
 
-    // Monochrome palettes — whites, silvers, deep greys
-    const TUBE_PALETTES = [
-      ['#ffffff', '#ffffff', '#c8c8c8'],   // pure white dominant
-      ['#ffffff', '#e8e8e8', '#888888'],   // white → silver
-      ['#ffffff', '#d0d0d0', '#606060'],   // high contrast sweep
-      ['#f8f8f8', '#cccccc', '#484848'],   // off-white to dark
-      ['#ffffff', '#ffffff', '#a0a0a0'],   // double white punch
-    ];
-    const LIGHT_PALETTES = [
-      ['#ffffff', '#ffffff', '#e0e0e0', '#888888'],  // bright whites
-      ['#ffffff', '#eeeeee', '#c0c0c0', '#606060'],
-      ['#ffffff', '#ffffff', '#b0b0b0', '#404040'],
-      ['#f5f5f5', '#dddddd', '#a0a0a0', '#303030'],
-    ];
-    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    // Derived from demo params: scale=100, speed=90
+    // animationDuration = mapRange(90, 1, 100, 1000, 50) / 25
+    //   = (1000 + (89/99)*(-950)) / 25  ≈  5.84 seconds per full 360° rotation
+    const SECS_PER_ROTATION = 5.84;
+    let startTime = null;
 
-    let tubesApp = null;
-    try {
-      const mod = await import(
-        'https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js'
-      );
-      tubesApp = mod.default(canvas, {
-        tubes: {
-          colors: TUBE_PALETTES[0],
-          lights: { intensity: 320, colors: LIGHT_PALETTES[0] }
-        }
-      });
-
-      canvas.classList.add('tubes-ready');
-      bgFall.classList.add('tubes-ready');
-      gridFall.classList.add('tubes-ready');
-      hint.classList.add('tubes-ready');
-
-    } catch (e) {
-      console.warn('Tubes unavailable, using static fallback.', e);
+    function tick(now) {
+      if (!startTime) startTime = now;
+      const elapsed = (now - startTime) / 1000;
+      const hue = (elapsed / SECS_PER_ROTATION * 360) % 360;
+      hueMatrix.setAttribute('values', hue.toFixed(2));
+      requestAnimationFrame(tick);
     }
-
-    hero.addEventListener('click', e => {
-      if (e.target.closest('a, button')) return;
-      if (!tubesApp) return;
-      tubesApp.tubes.setColors(pick(TUBE_PALETTES));
-      tubesApp.tubes.setLightsColors(pick(LIGHT_PALETTES));
-    });
+    requestAnimationFrame(tick);
   })();
 
   // ── Active nav highlight on scroll
